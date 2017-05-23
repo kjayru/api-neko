@@ -41,8 +41,8 @@ class SellerProductController extends ApiController
         $data = $request->all();
 
         $data['status'] = Product::UNAVAILABLE_PRODUCT;
-        $data['image'] = '1.jpg';
-        $data['seller_id'] = $seller->id;
+        $data['image'] = $request->image->store('');
+        $data['seller_id'] = $seller->id;                                                                                                                     
 
         $product = Product::create($data);
 
@@ -87,7 +87,11 @@ Un producto activo debe tener al menos una categoría',409);
             }
         }
 
+        if ($request->hasFile('image')) {
 
+            Storage::delete($product->image);
+            $product->image = $request->image->store('');
+        }
 
         if ($product->isClean()) {
             return $this->errorResponse('
@@ -108,7 +112,9 @@ Es necesario especificar un valor diferente para actualizar',422);
     public function destroy(Seller $seller, Product $product)
     {
         $this->checkSeller($seller, $product);
-        $product->delete();
+        
+        $product::delete();
+        Storage::delete($product->image);
 
         return $this->showOne($product);
     }
