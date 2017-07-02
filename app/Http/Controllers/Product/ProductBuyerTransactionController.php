@@ -8,6 +8,11 @@ use App\Http\Controllers\ApiController;
 
 class ProductBuyerTransactionController extends ApiController
 {
+     public function __construct()
+    {
+        parent::__contruct();
+        $this->middleware('transform.input'.TransactionTransformer::class)->only(['store','update']);
+    }
     
     public function store(Request $request, Product $product, Seller $seller)
     {

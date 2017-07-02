@@ -7,11 +7,12 @@ use App\Http\Controllers\ApiController;
 use App\User;
 class UserController extends ApiController
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        parent::__contruct();
+        $this->middleware('transform.input'.UserTransformer::class)->only(['store','update']);
+    }
+
     public function index()
     {
         $user = User::all();
@@ -30,17 +31,20 @@ class UserController extends ApiController
         $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6|confirmed',
+            //'password' => 'required|min:6|confirmed',
         ];
 
         $this->validate($request,$rules);
 
         $data = $request->all();
 
-        $data['password'] = bcrypt($request->password);
+       /* $data['password'] = bcrypt($request->password);
         $data['verified'] = User::UNVERIFIED_USER;
         $data['verification_token'] = User::generateVerificationCode();
-        $data['admin'] = User::REGULAR_USER;
+        $data['admin'] = User::REGULAR_USER;*/
+        $data['email'] = $request->email;
+        $data['name'] = $request->email;
+        $data['password'] = bcrypt($request->password);
 
         $user = User::create($data);
 

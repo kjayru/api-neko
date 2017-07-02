@@ -3,9 +3,11 @@
 namespace App\Traits;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use League\Fractal\Manager;
+
 trait ApiResponser
 {
-	private function successReponse($data, $code)
+	private function successResponse($data, $code)
 	{
 		return response()->json($data,$code);
 	}
@@ -18,24 +20,32 @@ trait ApiResponser
 	protected function showAll(Collection $collection, $code = 200)
 	{
 		if($collection->isEmpty()){
-			return $this->successResponse(['data' => $collection],$code);
-		}
-
+		     return $this->successResponse(['data' => $collection],$code);
+		};
 		$transformer = $collection->first()->transformer;
 		$collection = $this->transformData($collection,$transformer);
-		return $this->successReponse($collection,$code);
+		return $this->successResponse(['data'=>$collection],$code);
 	}
 
-	protected function showOne(Model $model,  $code = 200)
+	protected function showOne(Model $instance,  $code = 200)
 	{
 		$transformer = $instance->transformer;
 		$instance = $this->transformData($instance,$transformer);
-		return $this->successReponse($instance,$code);
+		return $this->successResponse(['data'=>$instance],$code);
 	}
 
 	protected function showMessage($message, $code = 200)
 	{
-		return $this->successReponse(['data' => $message],$code);
+		return $this->successResponse(['data' => $message],$code);
+	}
+
+	protected function sortData(Collection $collection)
+	{
+		if(request()->has('sort_by')){
+			$attribute = request()->sort->by;
+			$collection = $collection->sortBy($attribute);
+		}
+		return $collection;
 	}
 
 	protected function transformData($data, $transformer)
@@ -43,4 +53,6 @@ trait ApiResponser
 		$transformation = fractal($data, new $transformer);
 		return $transformation->toArray();
 	}
+
+	
 }
