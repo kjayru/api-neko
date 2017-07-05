@@ -9,6 +9,11 @@ use App\Product;
 use App\User;
 class SellerProductController extends ApiController
 {
+     public function __construct()
+    {
+        parent::__contruct();
+        $this->middleware('transform.input'.ProductTransformer::class)->only(['store','update']);
+    }
     /**
      * Display a listing of the resource.
      *
