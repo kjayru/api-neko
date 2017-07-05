@@ -14,7 +14,22 @@ class TransformInput{
             $transformedInput[$transformer::originalAttribute($input)] = $value;
         }
         $request->replace($transformedInput);
-        return $next($request);
+       $response = $next($request);
+       if(isset($response->exception) && $response->exception instanceof validationException ){
+            
+            $data = $response->getData();
+
+            $transformedErrors  =[];
+            foreach($data->error as $field => $error){
+                    $transformedField = $transformer::$trandsformedAttribute($field);
+                    $transformedErrors[$transformedField] = str_replace($field, $transformedField,$error);
+
+            };
+
+            $data->errors  = $transformedErrors;
+            $response->setData($data);
+       }
+       return $response;
     }
 
 

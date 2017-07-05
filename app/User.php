@@ -33,6 +33,7 @@ class User extends Authenticatable
         'verified',
         'verification_token',
         'admin',
+        'role_id',
     ];
 
     /**
@@ -74,6 +75,10 @@ class User extends Authenticatable
     public static function generateVerificationCode()
     {
         return str_random(40);
+    }
+
+    public function role(){
+    	return $this->belongsTo(Role::class);
     }
 
 
